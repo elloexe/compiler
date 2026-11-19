@@ -1,0 +1,341 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>ExeForge</title>
+<style>
+:root{
+  --bg:#f4f5f8;--panel:#ffffff;--panel2:#f0f2f6;--border:#dde1e8;--text:#1b1f27;--muted:#5d6675;
+  --accent:#3b6cf6;--accent-ink:#fff;--ok:#1f9d55;--err:#d64545;--warn:#b7791f;
+  --code-bg:#fbfbfd;--log-bg:#11151c;--log-text:#d5dbe5;--shadow:0 1px 2px rgba(0,0,0,.05),0 4px 16px rgba(0,0,0,.05);
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --bg:#0f1218;--panel:#171b23;--panel2:#1e232d;--border:#2a303c;--text:#e6e9ef;--muted:#949cab;
+  --accent:#5b86ff;--code-bg:#12161d;--log-bg:#0b0e13;--shadow:none;
+}}
+:root[data-theme="dark"]{
+  --bg:#0f1218;--panel:#171b23;--panel2:#1e232d;--border:#2a303c;--text:#e6e9ef;--muted:#949cab;
+  --accent:#5b86ff;--code-bg:#12161d;--log-bg:#0b0e13;--shadow:none;
+}
+*{box-sizing:border-box}
+html,body{margin:0;height:100%}
+body{background:var(--bg);color:var(--text);font:14px/1.45 system-ui,-apple-system,"Segoe UI",Ubuntu,Cantarell,sans-serif}
+header{display:flex;align-items:center;gap:12px;padding:12px 20px;border-bottom:1px solid var(--border);background:var(--panel)}
+.logo{width:30px;height:30px;border-radius:8px;background:linear-gradient(135deg,var(--accent),#8b5cf6);display:grid;place-items:center;color:#fff;font-weight:800;font-size:15px}
+h1{font-size:17px;margin:0;font-weight:700}
+.sub{color:var(--muted);font-size:12.5px}
+.spacer{flex:1}
+.pill{display:inline-flex;align-items:center;gap:6px;padding:4px 10px;border-radius:999px;font-size:12.5px;border:1px solid var(--border);background:var(--panel2);cursor:pointer}
+.dot{width:8px;height:8px;border-radius:50%;background:var(--muted)}
+.dot.ok{background:var(--ok)}.dot.err{background:var(--err)}
+button{font:inherit;border:1px solid var(--border);background:var(--panel2);color:var(--text);padding:7px 13px;border-radius:8px;cursor:pointer}
+button:hover{filter:brightness(1.05)}
+button.primary{background:var(--accent);border-color:var(--accent);color:var(--accent-ink);font-weight:600}
+button:disabled{opacity:.55;cursor:default}
+main{display:grid;grid-template-columns:minmax(0,1fr) 320px;gap:16px;padding:16px 20px;max-width:1400px;margin:0 auto}
+.card{background:var(--panel);border:1px solid var(--border);border-radius:12px;box-shadow:var(--shadow)}
+.card>.hd{display:flex;flex-wrap:wrap;align-items:center;gap:8px;padding:10px 14px;border-bottom:1px solid var(--border);font-weight:600}
+.card>.bd{padding:14px}
+.tabs{display:flex;gap:4px}
+.tab{border:none;background:transparent;padding:6px 10px;border-radius:7px;color:var(--muted)}
+.tab.active{background:var(--panel2);color:var(--text);font-weight:600}
+.editor-wrap{display:flex;flex-direction:column;gap:8px}
+.row{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+input[type=text],select,textarea{font:inherit;color:var(--text);background:var(--code-bg);border:1px solid var(--border);border-radius:8px;padding:7px 9px;width:100%}
+input[type=text]:focus,select:focus,textarea:focus{outline:2px solid color-mix(in srgb,var(--accent) 45%,transparent);outline-offset:-1px}
+textarea.code{font:13px/1.5 ui-monospace,"JetBrains Mono","Cascadia Code",Consolas,monospace;min-height:380px;resize:vertical;tab-size:4;white-space:pre}
+label.f{display:block;font-size:12.5px;color:var(--muted);margin:10px 0 4px}
+label.f:first-child{margin-top:0}
+.seg{display:flex;border:1px solid var(--border);border-radius:8px;overflow:hidden}
+.seg button{flex:1;border:none;border-radius:0;background:transparent;padding:7px 0}
+.seg button.on{background:var(--accent);color:var(--accent-ink);font-weight:600}
+.check{display:flex;align-items:center;gap:8px;margin-top:10px;cursor:pointer}
+.drop{border:2px dashed var(--border);border-radius:10px;padding:28px;text-align:center;color:var(--muted);cursor:pointer}
+.drop.over{border-color:var(--accent);color:var(--accent)}
+.filelist{margin:10px 0 0;padding:0;list-style:none}
+.filelist li{display:flex;justify-content:space-between;padding:6px 8px;border-radius:6px;background:var(--panel2);margin-bottom:4px;font-family:ui-monospace,monospace;font-size:12.5px}
+.filelist li button{padding:0 6px;border:none;background:none;color:var(--err)}
+pre.log{margin:0;background:var(--log-bg);color:var(--log-text);font:12.5px/1.5 ui-monospace,Consolas,monospace;padding:12px 14px;border-radius:0 0 12px 12px;max-height:280px;min-height:90px;overflow:auto;white-space:pre-wrap;word-break:break-word}
+.result{display:none;padding:14px;border-top:1px solid var(--border)}
+.result.show{display:block}
+.result .title{font-weight:700;font-size:15px;word-break:break-all}
+.kv{display:grid;grid-template-columns:auto 1fr;gap:3px 12px;font-size:12.5px;margin:8px 0 12px;color:var(--muted)}
+.kv b{color:var(--text);font-weight:500;word-break:break-all}
+details summary{cursor:pointer;color:var(--muted);font-size:12.5px;margin-top:12px}
+.tools{font-size:12.5px}
+.tools div{display:flex;gap:8px;padding:5px 0;border-bottom:1px solid var(--border)}
+.tools div:last-child{border:none}
+.tools .n{font-weight:600;min-width:120px}
+.tools .d{color:var(--muted);word-break:break-word}
+.modal{position:fixed;inset:0;background:rgba(0,0,0,.45);display:none;align-items:center;justify-content:center;padding:16px;z-index:5}
+.modal.show{display:flex}
+.modal .card{width:min(640px,100%)}
+.hint{font-size:12px;color:var(--muted);margin-top:6px}
+.stack{display:flex;flex-direction:column;gap:16px;min-width:0}
+@media (max-width:860px){#tpl{width:100%!important}main{grid-template-columns:1fr;padding:12px 16px}header{padding:10px 16px;flex-wrap:wrap}.sub{display:none}}
+</style>
+</head>
+<body>
+<header>
+  <div class="logo">EF</div>
+  <div><h1>ExeForge</h1><div class="sub">Build Windows .exe files from C, C++, Go and Rust</div></div>
+  <div class="spacer"></div>
+  <span class="pill" id="ccPill" title="Compiler status"><span class="dot" id="ccDot"></span><span id="ccText">checking…</span></span>
+  <button id="themeBtn" title="Toggle light/dark theme" aria-label="Toggle theme">☾</button>
+  <button id="quitBtn" title="Stop the ExeForge server">Quit</button>
+</header>
+
+<main>
+  <div class="stack">
+    <section class="card">
+      <div class="hd">
+        <div class="tabs">
+          <button class="tab active" data-tab="code">Write code</button>
+          <button class="tab" data-tab="files">Upload files</button>
+          <button class="tab" data-tab="paths">Local paths</button>
+        </div>
+        <div class="spacer"></div>
+        <select id="tpl" style="width:auto"></select>
+      </div>
+      <div class="bd">
+        <div data-pane="code" class="editor-wrap">
+          <div class="row"><input type="text" id="filename" value="hello.c" style="max-width:220px" aria-label="File name"><span class="hint" style="margin:0">The extension picks the language (.c .cpp .go .rs)</span></div>
+          <textarea class="code" id="code" spellcheck="false" aria-label="Source code"></textarea>
+        </div>
+        <div data-pane="files" hidden>
+          <div class="drop" id="drop">Drop source files here (.c .cpp .h .go .rs .rc) or click to choose</div>
+          <input type="file" id="fileInput" multiple hidden>
+          <ul class="filelist" id="fileList"></ul>
+          <div class="hint">Uploaded files are compiled together; headers are available to #include. The editor's code is ignored on this tab.</div>
+        </div>
+        <div data-pane="paths" hidden>
+          <textarea id="paths" rows="6" placeholder="/home/me/project/main.c&#10;/home/me/project/util.c&#10;(or a folder containing a Go package)" style="font-family:ui-monospace,monospace"></textarea>
+          <div class="hint">Files on this computer, one per line. Useful for larger projects.</div>
+        </div>
+      </div>
+    </section>
+
+    <section class="card">
+      <div class="hd">Build output <div class="spacer"></div><button id="clearLog" style="padding:3px 9px;font-size:12px">Clear</button></div>
+      <div class="result" id="result">
+        <div class="title" id="resName"></div>
+        <div class="kv" id="resKv"></div>
+        <div class="row">
+          <button class="primary" id="dlBtn">⬇ Download .exe</button>
+          <button id="runBtn">▶ Run</button>
+          <button id="folderBtn">Open folder</button>
+        </div>
+      </div>
+      <pre class="log" id="log">Ready. Pick a template or write some code, then press Build.</pre>
+    </section>
+  </div>
+
+  <aside class="stack">
+    <section class="card">
+      <div class="hd">Build settings</div>
+      <div class="bd">
+        <label class="f">Architecture</label>
+        <div class="seg" id="arch"><button data-v="x64" class="on">x64</button><button data-v="x86">x86 (32-bit)</button><button data-v="arm64">ARM64</button></div>
+        <label class="f">App type</label>
+        <div class="seg" id="kind"><button data-v="console" class="on">Console</button><button data-v="gui">Windowed</button></div>
+        <label class="f" for="outName">Output name</label>
+        <input type="text" id="outName" placeholder="hello.exe">
+        <label class="f" for="libs">Link libraries</label>
+        <input type="text" id="libs" placeholder="user32 gdi32 ws2_32">
+        <details>
+          <summary>More options</summary>
+          <label class="f">Icon (.ico)</label>
+          <input type="file" id="icon" accept=".ico">
+          <label class="f" for="productName">Product name</label>
+          <input type="text" id="productName" placeholder="My App">
+          <label class="f" for="version">Version</label>
+          <input type="text" id="version" placeholder="1.0.0">
+          <label class="f" for="defines">Defines</label>
+          <input type="text" id="defines" placeholder="DEBUG=1 FEATURE_X">
+          <label class="f" for="flags">Extra compiler flags</label>
+          <input type="text" id="flags" placeholder="-std=c11 -Wall">
+          <label class="f" for="toolchain">Compiler</label>
+          <select id="toolchain"><option value="auto">Automatic</option><option value="mingw">MinGW-w64 (gcc)</option><option value="zig">Zig (clang)</option></select>
+          <label class="f" for="outDir">Save to folder</label>
+          <input type="text" id="outDir">
+          <label class="check"><input type="checkbox" id="debug"> Debug build (symbols, no optimisation)</label>
+        </details>
+        <button class="primary" id="buildBtn" style="width:100%;margin-top:16px;padding:10px">Build .exe</button>
+        <div class="hint" style="text-align:center">Ctrl+Enter to build</div>
+      </div>
+    </section>
+    <section class="card">
+      <div class="hd">Toolchains <div class="spacer"></div><button id="setupBtn" style="padding:3px 9px;font-size:12px">Install compiler</button></div>
+      <div class="bd tools" id="tools">…</div>
+    </section>
+  </aside>
+</main>
+
+<div class="modal" id="runModal">
+  <div class="card">
+    <div class="hd" id="runTitle">Program output <div class="spacer"></div><button id="runClose">Close</button></div>
+    <pre class="log" id="runOut" style="border-radius:0 0 12px 12px;max-height:60vh"></pre>
+  </div>
+</div>
+
+<script>
+const T = new URLSearchParams(location.search).get('t') || '';
+const $ = id => document.getElementById(id);
+const api = (path, opts = {}) => fetch(path + (path.includes('?') ? '&' : '?') + 't=' + T, {...opts, headers: {'X-Token': T, ...(opts.headers || {})}});
+let state = {tab: 'code', files: [], templates: [], lastId: null, arch: 'x64', kind: 'console'};
+
+// theme
+try { const t = localStorage.getItem('ef-theme'); if (t) document.documentElement.dataset.theme = t; } catch (e) {}
+$('themeBtn').onclick = () => {
+  const cur = document.documentElement.dataset.theme || (matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+  const next = cur === 'dark' ? 'light' : 'dark';
+  document.documentElement.dataset.theme = next;
+  try { localStorage.setItem('ef-theme', next); } catch (e) {}
+};
+
+// tabs
+document.querySelectorAll('.tab').forEach(b => b.onclick = () => {
+  state.tab = b.dataset.tab;
+  document.querySelectorAll('.tab').forEach(x => x.classList.toggle('active', x === b));
+  document.querySelectorAll('[data-pane]').forEach(p => p.hidden = p.dataset.pane !== state.tab);
+});
+
+// segmented controls
+function seg(id, key) {
+  $(id).querySelectorAll('button').forEach(b => b.onclick = () => {
+    state[key] = b.dataset.v;
+    $(id).querySelectorAll('button').forEach(x => x.classList.toggle('on', x === b));
+  });
+}
+seg('arch', 'arch'); seg('kind', 'kind');
+function setKind(v) { $('kind').querySelector(`[data-v="${v}"]`).click(); }
+
+// editor: tab key inserts spaces
+$('code').addEventListener('keydown', e => {
+  if (e.key === 'Tab' && !e.shiftKey) {
+    e.preventDefault();
+    const t = e.target, s = t.selectionStart;
+    t.setRangeText('    ', s, t.selectionEnd, 'end');
+  }
+});
+document.addEventListener('keydown', e => { if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') build(); });
+
+// files
+const drop = $('drop');
+drop.onclick = () => $('fileInput').click();
+$('fileInput').onchange = e => addFiles(e.target.files);
+drop.ondragover = e => { e.preventDefault(); drop.classList.add('over'); };
+drop.ondragleave = () => drop.classList.remove('over');
+drop.ondrop = e => { e.preventDefault(); drop.classList.remove('over'); addFiles(e.dataTransfer.files); };
+function addFiles(list) { for (const f of list) { state.files = state.files.filter(x => x.name !== f.name); state.files.push(f); } renderFiles(); }
+function renderFiles() {
+  const ul = $('fileList'); ul.innerHTML = '';
+  state.files.forEach((f, i) => {
+    const li = document.createElement('li');
+    li.textContent = `${f.name}  (${(f.size / 1024).toFixed(1)} KB)`;
+    const rm = document.createElement('button'); rm.textContent = '✕'; rm.title = 'Remove';
+    rm.onclick = () => { state.files.splice(i, 1); renderFiles(); };
+    li.appendChild(rm); ul.appendChild(li);
+  });
+}
+
+// templates
+$('tpl').onchange = () => {
+  const t = state.templates.find(x => x.id === $('tpl').value); if (!t) return;
+  $('code').value = t.code; $('filename').value = t.filename; $('libs').value = t.libs || '';
+  $('outName').value = ''; $('outName').placeholder = t.filename.replace(/\.[^.]+$/, '') + '.exe'; setKind(t.gui ? 'gui' : 'console');
+  document.querySelector('[data-tab="code"]').click();
+};
+
+// status
+async function loadStatus() {
+  const s = await (await api('/api/status')).json();
+  $('ccDot').className = 'dot ' + (s.ccReady ? 'ok' : 'err');
+  $('ccText').textContent = s.ccReady ? s.ccDetail.split(' (')[0] : 'No C compiler — click to install';
+  $('tools').innerHTML = '';
+  s.tools.forEach(t => {
+    const d = document.createElement('div');
+    d.innerHTML = `<span class="dot ${t.found ? 'ok' : ''}" style="margin-top:6px;flex:none"></span><span class="n"></span><span class="d"></span>`;
+    d.querySelector('.n').textContent = t.name;
+    d.querySelector('.d').textContent = t.detail + ' · ' + t.for;
+    $('tools').appendChild(d);
+  });
+  if (!$('outDir').value) $('outDir').value = s.outDir;
+  if (!state.templates.length) {
+    state.templates = s.templates;
+    const ph = new Option('Templates…', ''); ph.disabled = true; $('tpl').add(ph);
+    s.templates.forEach(t => $('tpl').add(new Option(t.name, t.id)));
+    $('tpl').value = s.templates[0].id; $('tpl').onchange();
+  }
+  document.title = 'ExeForge ' + (s.version || '');
+  return s;
+}
+$('ccPill').onclick = () => { if ($('ccDot').classList.contains('err')) setup(); };
+
+const log = (txt, replace) => { const l = $('log'); l.textContent = replace ? txt : l.textContent + txt; l.scrollTop = l.scrollHeight; };
+$('clearLog').onclick = () => { log('', true); $('result').classList.remove('show'); };
+
+async function setup() {
+  $('setupBtn').disabled = true; log('Installing the Zig C/C++ cross-compiler (~50–80 MB)…\n', true);
+  try {
+    const r = await api('/api/setup', {method: 'POST'});
+    const rd = r.body.getReader(), dec = new TextDecoder();
+    for (;;) { const {done, value} = await rd.read(); if (done) break; log(dec.decode(value)); }
+  } catch (e) { log('Error: ' + e + '\n'); }
+  $('setupBtn').disabled = false; loadStatus();
+}
+$('setupBtn').onclick = setup;
+
+async function build() {
+  const btn = $('buildBtn'); if (btn.disabled) return;
+  btn.disabled = true; btn.textContent = 'Building…';
+  $('result').classList.remove('show'); log('Building…\n', true);
+  const fd = new FormData();
+  const opts = {
+    arch: state.arch, gui: state.kind === 'gui', debug: $('debug').checked, toolchain: $('toolchain').value,
+    libs: $('libs').value, defines: $('defines').value, flags: $('flags').value, outName: $('outName').value,
+    outDir: $('outDir').value, productName: $('productName').value, version: $('version').value,
+  };
+  if (state.tab === 'code') { opts.code = $('code').value; opts.filename = $('filename').value; }
+  if (state.tab === 'files') state.files.forEach(f => fd.append('files', f, f.name));
+  if (state.tab === 'paths') opts.paths = $('paths').value;
+  fd.append('options', JSON.stringify(opts));
+  if ($('icon').files[0]) fd.append('icon', $('icon').files[0]);
+  try {
+    const res = await (await api('/api/build', {method: 'POST', body: fd})).json();
+    log(res.log, true);
+    if (res.ok) showResult(res);
+  } catch (e) { log('Request failed: ' + e + '\n'); }
+  btn.disabled = false; btn.textContent = 'Build .exe';
+}
+$('buildBtn').onclick = build;
+
+function showResult(r) {
+  state.lastId = r.id;
+  $('resName').textContent = '✔ ' + r.name;
+  const kv = $('resKv'); kv.innerHTML = '';
+  const rows = [['Saved to', r.output], ['Size', (r.size / 1024).toFixed(1) + ' KB'],
+    ['Type', `${r.info.machine} · ${r.info.subsystem}`], ['Compiler', r.compiler],
+    ['Needs DLLs', (r.info.dlls || []).join(', ') || 'none'], ['Time', (r.ms / 1000).toFixed(2) + ' s']];
+  rows.forEach(([k, v]) => { const a = document.createElement('span'); a.textContent = k; const b = document.createElement('b'); b.textContent = v; kv.append(a, b); });
+  $('result').classList.add('show');
+}
+$('dlBtn').onclick = () => { if (state.lastId) location.href = `/api/download?id=${state.lastId}&t=${T}`; };
+$('folderBtn').onclick = () => api('/api/open-folder?id=' + state.lastId, {method: 'POST'});
+$('runBtn').onclick = async () => {
+  $('runOut').textContent = 'Running…'; $('runModal').classList.add('show');
+  const r = await (await api('/api/run?id=' + state.lastId, {method: 'POST'})).json();
+  $('runOut').textContent = (r.output || '(no output)') + (r.error ? '\n[' + r.error + ']' : '\n[exited OK]');
+};
+$('runClose').onclick = () => $('runModal').classList.remove('show');
+$('quitBtn').onclick = async () => {
+  if (!confirm('Stop ExeForge?')) return;
+  await api('/api/quit', {method: 'POST'});
+  document.body.innerHTML = '<p style="padding:40px;text-align:center">ExeForge has stopped. You can close this tab.</p>';
+};
+
+loadStatus().catch(e => log('Could not reach ExeForge: ' + e, true));
+</script>
+</body>
+</html>

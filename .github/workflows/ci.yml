@@ -1,0 +1,54 @@
+name: CI
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  linux:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
+        with: { go-version: '1.24' }
+      - run: sudo apt-get update && sudo apt-get install -y mingw-w64
+      - run: go vet ./... && go test ./...
+      - name: Build ExeForge for every platform
+        run: VERSION=${GITHUB_SHA::7} scripts/build-release.sh
+      - name: Cross-compile sample exes on Linux
+        run: |
+          mkdir samples && cd samples
+          E=../dist/exeforge-linux-amd64
+          $E new console-c && $E build hello.c -o hello-c.exe
+          $E new console-cpp && $E build -a x86 hello.cpp -o hello-cpp-x86.exe
+          $E new go && $E build hello.go -o hello-go.exe
+          $E new messagebox && $E build -w -l user32 msgbox.c
+          $E info *.exe
+      - uses: actions/upload-artifact@v4
+        with: { name: exeforge, path: dist/ }
+      - uses: actions/upload-artifact@v4
+        with: { name: samples, path: samples/*.exe }
+
+  windows:
+    needs: linux
+    runs-on: windows-latest
+    steps:
+      - uses: actions/download-artifact@v4
+        with: { name: samples, path: samples }
+      - uses: actions/download-artifact@v4
+        with: { name: exeforge, path: dist }
+      - name: Run exes that were built on Linux
+        shell: bash
+        run: |
+          samples/hello-c.exe a b | tee out.txt && grep -q "Hello from a Windows exe" out.txt
+          samples/hello-cpp-x86.exe | grep -q "Hello from C++"
+          samples/hello-go.exe | grep -q "Hello from Go on windows"
+      - name: ExeForge.exe builds an exe on Windows (downloads Zig)
+        shell: bash
+        run: |
+          E=dist/exeforge-windows-amd64.exe
+          $E doctor
+          $E setup
+          $E new console-c win.c
+          $E build --toolchain zig win.c --run | tee out.txt
+          grep -q "Hello from a Windows exe" out.txt
