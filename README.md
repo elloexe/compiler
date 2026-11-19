@@ -70,6 +70,8 @@ Run `exeforge help` to see every option.
 | Rust | `rustc --target x86_64-pc-windows-gnu` |
 
 C and C++ programs are linked statically, so the `.exe` only needs DLLs that ship with Windows.
+Builds are reproducible: the same source and the same compiler version give a byte-identical
+`.exe`, whether you build on your laptop, in this container or in GitHub Actions.
 Icons and version info are compiled from a generated `.rc` resource script.
 Zig is downloaded from ziglang.org, checked against a pinned SHA-256, and stored in your user
 cache folder (`~/.cache/exeforge` or `%LOCALAPPDATA%\exeforge`).

@@ -6,176 +6,315 @@
 <title>ExeForge</title>
 <style>
 :root{
-  --bg:#f4f5f8;--panel:#ffffff;--panel2:#f0f2f6;--border:#dde1e8;--text:#1b1f27;--muted:#5d6675;
-  --accent:#3b6cf6;--accent-ink:#fff;--ok:#1f9d55;--err:#d64545;--warn:#b7791f;
-  --code-bg:#fbfbfd;--log-bg:#11151c;--log-text:#d5dbe5;--shadow:0 1px 2px rgba(0,0,0,.05),0 4px 16px rgba(0,0,0,.05);
+  --canvas:#ffffff;--subtle:#f6f8fa;--inset:#f6f8fa;--border:#d0d7de;--border-muted:#d8dee4;
+  --fg:#1f2328;--muted:#656d76;--accent:#0969da;--accent-subtle:#ddf4ff;
+  --success:#1a7f37;--success-emph:#1f883d;--success-hover:#1c8139;--danger:#d1242f;--attention:#9a6700;
+  --btn-bg:#f6f8fa;--btn-hover:#f3f4f6;--btn-border:rgba(31,35,40,.15);
+  --header-bg:#f6f8fa;--underline:#fd8c73;--shadow:0 1px 0 rgba(31,35,40,.04);
+  --log-bg:#0d1117;--log-fg:#e6edf3;--log-muted:#7d8590;--log-hover:#161b22;--log-blue:#79c0ff;--log-green:#3fb950;--log-red:#f85149;--log-yellow:#d29922;
+  --overlay:rgba(140,149,159,.2);
 }
 @media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
-  --bg:#0f1218;--panel:#171b23;--panel2:#1e232d;--border:#2a303c;--text:#e6e9ef;--muted:#949cab;
-  --accent:#5b86ff;--code-bg:#12161d;--log-bg:#0b0e13;--shadow:none;
+  --canvas:#0d1117;--subtle:#161b22;--inset:#010409;--border:#30363d;--border-muted:#21262d;
+  --fg:#e6edf3;--muted:#7d8590;--accent:#2f81f7;--accent-subtle:rgba(56,139,253,.15);
+  --success:#3fb950;--success-emph:#238636;--success-hover:#2ea043;--danger:#f85149;--attention:#d29922;
+  --btn-bg:#21262d;--btn-hover:#30363d;--btn-border:rgba(240,246,252,.1);--header-bg:#010409;--shadow:none;
+  --log-bg:#010409;--log-hover:#0d1117;--overlay:rgba(1,4,9,.8);
 }}
 :root[data-theme="dark"]{
-  --bg:#0f1218;--panel:#171b23;--panel2:#1e232d;--border:#2a303c;--text:#e6e9ef;--muted:#949cab;
-  --accent:#5b86ff;--code-bg:#12161d;--log-bg:#0b0e13;--shadow:none;
+  --canvas:#0d1117;--subtle:#161b22;--inset:#010409;--border:#30363d;--border-muted:#21262d;
+  --fg:#e6edf3;--muted:#7d8590;--accent:#2f81f7;--accent-subtle:rgba(56,139,253,.15);
+  --success:#3fb950;--success-emph:#238636;--success-hover:#2ea043;--danger:#f85149;--attention:#d29922;
+  --btn-bg:#21262d;--btn-hover:#30363d;--btn-border:rgba(240,246,252,.1);--header-bg:#010409;--shadow:none;
+  --log-bg:#010409;--log-hover:#0d1117;--overlay:rgba(1,4,9,.8);
 }
 *{box-sizing:border-box}
-html,body{margin:0;height:100%}
-body{background:var(--bg);color:var(--text);font:14px/1.45 system-ui,-apple-system,"Segoe UI",Ubuntu,Cantarell,sans-serif}
-header{display:flex;align-items:center;gap:12px;padding:12px 20px;border-bottom:1px solid var(--border);background:var(--panel)}
-.logo{width:30px;height:30px;border-radius:8px;background:linear-gradient(135deg,var(--accent),#8b5cf6);display:grid;place-items:center;color:#fff;font-weight:800;font-size:15px}
-h1{font-size:17px;margin:0;font-weight:700}
-.sub{color:var(--muted);font-size:12.5px}
+[hidden]{display:none!important}
+html,body{margin:0}
+body{background:var(--canvas);color:var(--fg);font:14px/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI","Noto Sans",Helvetica,Arial,sans-serif}
+.mono{font-family:ui-monospace,SFMono-Regular,"SF Mono",Menlo,Consolas,"Liberation Mono",monospace}
+svg.oct{width:16px;height:16px;fill:currentColor;vertical-align:text-bottom;flex:none}
+
+/* header */
+.appheader{background:var(--header-bg);border-bottom:1px solid var(--border);padding:16px 24px 0}
+.toprow{display:flex;align-items:center;gap:12px;min-height:32px}
+.mark{width:32px;height:32px;border-radius:50%;border:1px solid var(--border);display:grid;place-items:center;background:var(--canvas)}
+.crumb{font-size:20px;display:flex;align-items:center;gap:4px;min-width:0;white-space:nowrap}
+.crumb a{color:var(--accent);text-decoration:none}
+.crumb strong{font-weight:600}
+.crumb .sep{color:var(--muted);margin:0 2px}
+.Label{display:inline-flex;align-items:center;border:1px solid var(--border);border-radius:2em;padding:0 7px;font-size:12px;font-weight:500;line-height:18px;color:var(--muted);white-space:nowrap}
 .spacer{flex:1}
-.pill{display:inline-flex;align-items:center;gap:6px;padding:4px 10px;border-radius:999px;font-size:12.5px;border:1px solid var(--border);background:var(--panel2);cursor:pointer}
-.dot{width:8px;height:8px;border-radius:50%;background:var(--muted)}
-.dot.ok{background:var(--ok)}.dot.err{background:var(--err)}
-button{font:inherit;border:1px solid var(--border);background:var(--panel2);color:var(--text);padding:7px 13px;border-radius:8px;cursor:pointer}
-button:hover{filter:brightness(1.05)}
-button.primary{background:var(--accent);border-color:var(--accent);color:var(--accent-ink);font-weight:600}
-button:disabled{opacity:.55;cursor:default}
-main{display:grid;grid-template-columns:minmax(0,1fr) 320px;gap:16px;padding:16px 20px;max-width:1400px;margin:0 auto}
-.card{background:var(--panel);border:1px solid var(--border);border-radius:12px;box-shadow:var(--shadow)}
-.card>.hd{display:flex;flex-wrap:wrap;align-items:center;gap:8px;padding:10px 14px;border-bottom:1px solid var(--border);font-weight:600}
-.card>.bd{padding:14px}
-.tabs{display:flex;gap:4px}
-.tab{border:none;background:transparent;padding:6px 10px;border-radius:7px;color:var(--muted)}
-.tab.active{background:var(--panel2);color:var(--text);font-weight:600}
-.editor-wrap{display:flex;flex-direction:column;gap:8px}
-.row{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
-input[type=text],select,textarea{font:inherit;color:var(--text);background:var(--code-bg);border:1px solid var(--border);border-radius:8px;padding:7px 9px;width:100%}
-input[type=text]:focus,select:focus,textarea:focus{outline:2px solid color-mix(in srgb,var(--accent) 45%,transparent);outline-offset:-1px}
-textarea.code{font:13px/1.5 ui-monospace,"JetBrains Mono","Cascadia Code",Consolas,monospace;min-height:380px;resize:vertical;tab-size:4;white-space:pre}
-label.f{display:block;font-size:12.5px;color:var(--muted);margin:10px 0 4px}
-label.f:first-child{margin-top:0}
-.seg{display:flex;border:1px solid var(--border);border-radius:8px;overflow:hidden}
-.seg button{flex:1;border:none;border-radius:0;background:transparent;padding:7px 0}
-.seg button.on{background:var(--accent);color:var(--accent-ink);font-weight:600}
-.check{display:flex;align-items:center;gap:8px;margin-top:10px;cursor:pointer}
-.drop{border:2px dashed var(--border);border-radius:10px;padding:28px;text-align:center;color:var(--muted);cursor:pointer}
-.drop.over{border-color:var(--accent);color:var(--accent)}
-.filelist{margin:10px 0 0;padding:0;list-style:none}
-.filelist li{display:flex;justify-content:space-between;padding:6px 8px;border-radius:6px;background:var(--panel2);margin-bottom:4px;font-family:ui-monospace,monospace;font-size:12.5px}
-.filelist li button{padding:0 6px;border:none;background:none;color:var(--err)}
-pre.log{margin:0;background:var(--log-bg);color:var(--log-text);font:12.5px/1.5 ui-monospace,Consolas,monospace;padding:12px 14px;border-radius:0 0 12px 12px;max-height:280px;min-height:90px;overflow:auto;white-space:pre-wrap;word-break:break-word}
-.result{display:none;padding:14px;border-top:1px solid var(--border)}
-.result.show{display:block}
-.result .title{font-weight:700;font-size:15px;word-break:break-all}
-.kv{display:grid;grid-template-columns:auto 1fr;gap:3px 12px;font-size:12.5px;margin:8px 0 12px;color:var(--muted)}
-.kv b{color:var(--text);font-weight:500;word-break:break-all}
-details summary{cursor:pointer;color:var(--muted);font-size:12.5px;margin-top:12px}
-.tools{font-size:12.5px}
-.tools div{display:flex;gap:8px;padding:5px 0;border-bottom:1px solid var(--border)}
-.tools div:last-child{border:none}
-.tools .n{font-weight:600;min-width:120px}
-.tools .d{color:var(--muted);word-break:break-word}
-.modal{position:fixed;inset:0;background:rgba(0,0,0,.45);display:none;align-items:center;justify-content:center;padding:16px;z-index:5}
-.modal.show{display:flex}
-.modal .card{width:min(640px,100%)}
-.hint{font-size:12px;color:var(--muted);margin-top:6px}
+.UnderlineNav{display:flex;gap:8px;margin-top:12px;overflow-x:auto}
+.UnderlineNav button{all:unset;cursor:pointer;display:flex;align-items:center;gap:8px;padding:0 8px;height:48px;color:var(--fg);position:relative;white-space:nowrap}
+.UnderlineNav button span.inner{padding:6px 8px;border-radius:6px;display:flex;gap:8px;align-items:center}
+.UnderlineNav button:hover span.inner{background:var(--btn-hover)}
+.UnderlineNav button[aria-current="page"]{font-weight:600}
+.UnderlineNav button[aria-current="page"]::after{content:"";position:absolute;left:8px;right:8px;bottom:-1px;height:2px;border-radius:6px;background:var(--underline)}
+.UnderlineNav svg{color:var(--muted)}
+
+/* buttons */
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;height:32px;padding:0 12px;font:500 14px/20px inherit;font-family:inherit;color:var(--fg);background:var(--btn-bg);border:1px solid var(--btn-border);border-radius:6px;cursor:pointer;white-space:nowrap;box-shadow:var(--shadow)}
+.btn:hover{background:var(--btn-hover)}
+.btn-sm{height:28px;padding:0 8px;font-size:12px}
+.btn-primary{background:var(--success-emph);color:#fff;border-color:rgba(31,35,40,.15)}
+.btn-primary:hover{background:var(--success-hover)}
+.btn-danger{color:var(--danger)}
+.btn:disabled{opacity:.6;cursor:default}
+.btn-block{width:100%}
+.btn-octicon{all:unset;cursor:pointer;color:var(--muted);padding:4px;border-radius:6px;display:inline-flex}
+.btn-octicon:hover{color:var(--accent);background:var(--btn-hover)}
+
+/* layout */
+.container{max-width:1280px;margin:0 auto;padding:24px}
+.layout{display:grid;grid-template-columns:minmax(0,1fr) 296px;gap:24px}
+.Box{border:1px solid var(--border);border-radius:6px;background:var(--canvas);min-width:0}
+.Box-header{display:flex;align-items:center;gap:8px;padding:8px 16px;background:var(--subtle);border-bottom:1px solid var(--border);border-radius:6px 6px 0 0;min-height:48px;flex-wrap:wrap}
+.Box-title{font-weight:600}
+.Box-body{padding:16px}
 .stack{display:flex;flex-direction:column;gap:16px;min-width:0}
-@media (max-width:860px){#tpl{width:100%!important}main{grid-template-columns:1fr;padding:12px 16px}header{padding:10px 16px;flex-wrap:wrap}.sub{display:none}}
+
+/* form controls */
+.form-control{font:inherit;font-size:14px;line-height:20px;color:var(--fg);background:var(--canvas);border:1px solid var(--border);border-radius:6px;padding:5px 12px;width:100%;box-shadow:inset 0 1px 0 rgba(208,215,222,.2)}
+.form-control:focus{outline:none;border-color:var(--accent);box-shadow:inset 0 0 0 1px var(--accent)}
+select.form-control{appearance:none;padding-right:28px;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='%23656d76'%3E%3Cpath d='m4.427 7.427 3.396 3.396a.25.25 0 0 0 .354 0l3.396-3.396A.25.25 0 0 0 11.396 7H4.604a.25.25 0 0 0-.177.427Z'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 6px center}
+.form-group{margin-bottom:16px}
+.form-group>label{display:block;font-weight:600;margin-bottom:6px}
+.note{font-size:12px;color:var(--muted);margin-top:4px}
+
+/* segmented control (Primer) */
+.SegmentedControl{display:flex;background:var(--subtle);border:1px solid var(--border);border-radius:6px;padding:2px;gap:2px}
+.SegmentedControl button{all:unset;flex:1;text-align:center;cursor:pointer;padding:3px 8px;border-radius:5px;font-size:13px;color:var(--fg)}
+.SegmentedControl button:hover{background:var(--btn-hover)}
+.SegmentedControl button.on{background:var(--canvas);font-weight:600;box-shadow:0 0 0 1px var(--border)}
+
+/* editor */
+.editor{display:flex;border-radius:0 0 6px 6px;overflow:hidden;background:var(--canvas)}
+.gutter{padding:8px 0;min-width:48px;text-align:right;color:var(--muted);user-select:none;font-size:12px;line-height:20px;background:var(--canvas);border-right:1px solid var(--border-muted)}
+.gutter div{padding:0 10px}
+textarea.code{flex:1;border:none;outline:none;resize:none;min-height:420px;overflow-y:hidden;padding:8px 12px;font-size:12px;line-height:20px;color:var(--fg);background:var(--canvas);white-space:pre;tab-size:4;overflow-x:auto}
+.filename-input{max-width:240px}
+
+/* upload */
+.drop{margin:16px;border:1px dashed var(--border);border-radius:6px;padding:32px 16px;text-align:center;color:var(--muted);cursor:pointer;background:var(--subtle)}
+.drop.over{border-color:var(--accent);background:var(--accent-subtle);color:var(--accent)}
+.drop strong{color:var(--accent);font-weight:600}
+.filelist{list-style:none;margin:0;padding:0}
+.filelist li{display:flex;align-items:center;gap:8px;padding:8px 16px;border-top:1px solid var(--border-muted)}
+.filelist li .nm{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis}
+
+/* flash */
+.flash{display:flex;gap:12px;align-items:flex-start;padding:16px;border:1px solid;border-radius:6px}
+.flash-success{background:rgba(31,136,61,.08);border-color:rgba(31,136,61,.4)}
+.flash-success>svg{color:var(--success)}
+.flash .t{font-weight:600;word-break:break-all}
+.kv{display:grid;grid-template-columns:auto 1fr;gap:2px 16px;font-size:12px;color:var(--muted);margin:8px 0 12px}
+.kv b{color:var(--fg);font-weight:400;word-break:break-all}
+
+/* Actions-style log */
+.checkrun{border:1px solid var(--border);border-radius:6px;overflow:hidden}
+.checkrun-head{display:flex;align-items:center;gap:8px;padding:12px 16px;background:var(--log-bg);color:var(--log-fg);border-bottom:1px solid #30363d}
+.checkrun-head .sub{color:var(--log-muted);font-size:12px}
+.status-icon{display:inline-flex}
+.status-icon.ok{color:var(--log-green)}.status-icon.fail{color:var(--log-red)}.status-icon.idle{color:var(--log-muted)}
+.spin{animation:spin 1s linear infinite;color:var(--log-yellow)}
+@keyframes spin{to{transform:rotate(360deg)}}
+.log{background:var(--log-bg);color:var(--log-fg);font-size:12px;line-height:20px;max-height:360px;min-height:80px;overflow:auto;padding:8px 0}
+.log .ln{display:flex;padding:0 16px 0 0}
+.log .ln:hover{background:var(--log-hover)}
+.log .no{flex:none;width:48px;text-align:right;padding-right:16px;color:var(--log-muted);user-select:none}
+.log .tx{white-space:pre-wrap;word-break:break-word;min-width:0}
+.log .cmd .tx{color:var(--log-blue)}
+.log .ok .tx{color:var(--log-green)}
+.log .err .tx{color:var(--log-red)}
+.log .warn .tx{color:var(--log-yellow)}
+.log .grp .tx{font-weight:600}
+
+/* sidebar */
+.side h2{font-size:16px;font-weight:600;margin:0 0 12px}
+.side section{padding-bottom:24px;border-bottom:1px solid var(--border-muted);margin-bottom:24px}
+.side section:last-child{border:none}
+details.more>summary{cursor:pointer;color:var(--muted);font-size:12px;margin:-4px 0 12px;list-style:none;display:flex;align-items:center;gap:4px}
+details.more>summary::-webkit-details-marker{display:none}
+details.more>summary:hover{color:var(--accent)}
+details.more[open]>summary svg{transform:rotate(90deg)}
+.check{display:flex;align-items:center;gap:8px;font-size:14px;cursor:pointer}
+.tools{list-style:none;margin:0;padding:0}
+.tools li{display:flex;gap:8px;padding:4px 0;font-size:12px}
+.tools .dot{width:8px;height:8px;border-radius:50%;margin-top:5px;flex:none;background:var(--border)}
+.tools .dot.ok{background:var(--success)}
+.tools b{font-weight:600;font-size:12px}
+.tools .d{color:var(--muted);word-break:break-word}
+
+/* dialog */
+.overlay{position:fixed;inset:0;background:var(--overlay);display:none;align-items:flex-start;justify-content:center;padding:64px 16px;z-index:10}
+.overlay.show{display:flex}
+.dialog{width:min(720px,100%);border-radius:12px;overflow:hidden;box-shadow:0 8px 24px rgba(140,149,159,.2);background:var(--canvas);border:1px solid var(--border)}
+
+.blankslate{text-align:center;padding:24px;color:var(--muted)}
+footer{max-width:1280px;margin:0 auto;padding:16px 24px 40px;color:var(--muted);font-size:12px;display:flex;gap:16px;flex-wrap:wrap;border-top:1px solid var(--border-muted)}
+
+@media (max-width:900px){
+  .layout{grid-template-columns:1fr}
+  .container{padding:16px}
+  .appheader{padding:12px 16px 0}
+  .crumb{font-size:16px}
+  .hide-sm{display:none!important}
+  .filename-input{max-width:none}
+  #tpl{width:100%}
+}
 </style>
 </head>
 <body>
-<header>
-  <div class="logo">EF</div>
-  <div><h1>ExeForge</h1><div class="sub">Build Windows .exe files from C, C++, Go and Rust</div></div>
-  <div class="spacer"></div>
-  <span class="pill" id="ccPill" title="Compiler status"><span class="dot" id="ccDot"></span><span id="ccText">checking…</span></span>
-  <button id="themeBtn" title="Toggle light/dark theme" aria-label="Toggle theme">☾</button>
-  <button id="quitBtn" title="Stop the ExeForge server">Quit</button>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <symbol id="i-code" viewBox="0 0 16 16"><path d="m11.28 3.22 4.25 4.25a.75.75 0 0 1 0 1.06l-4.25 4.25a.749.749 0 0 1-1.275-.326.749.749 0 0 1 .215-.734L13.94 8l-3.72-3.72a.749.749 0 0 1 .326-1.275.749.749 0 0 1 .734.215Zm-6.56 0a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042L2.06 8l3.72 3.72a.749.749 0 0 1-.326 1.275.749.749 0 0 1-.734-.215L.47 8.53a.75.75 0 0 1 0-1.06Z"/></symbol>
+  <symbol id="i-upload" viewBox="0 0 16 16"><path d="M2.75 14A1.75 1.75 0 0 1 1 12.25v-2.5a.75.75 0 0 1 1.5 0v2.5c0 .138.112.25.25.25h10.5a.25.25 0 0 0 .25-.25v-2.5a.75.75 0 0 1 1.5 0v2.5A1.75 1.75 0 0 1 13.25 14Z"/><path d="M11.78 4.72a.749.749 0 1 1-1.06 1.06L8.75 3.811V9.5a.75.75 0 0 1-1.5 0V3.811L5.28 5.78a.749.749 0 1 1-1.06-1.06l3.25-3.25a.749.749 0 0 1 1.06 0l3.25 3.25Z"/></symbol>
+  <symbol id="i-folder" viewBox="0 0 16 16"><path d="M1.75 1A1.75 1.75 0 0 0 0 2.75v10.5C0 14.216.784 15 1.75 15h12.5A1.75 1.75 0 0 0 16 13.25v-8.5A1.75 1.75 0 0 0 14.25 3H7.5a.25.25 0 0 1-.2-.1l-.9-1.2C6.07 1.26 5.55 1 5 1H1.75Z"/></symbol>
+  <symbol id="i-file" viewBox="0 0 16 16"><path d="M2 1.75C2 .784 2.784 0 3.75 0h6.586c.464 0 .909.184 1.237.513l2.914 2.914c.329.328.513.773.513 1.237v9.586A1.75 1.75 0 0 1 13.25 16h-9.5A1.75 1.75 0 0 1 2 14.25Zm1.75-.25a.25.25 0 0 0-.25.25v12.5c0 .138.112.25.25.25h9.5a.25.25 0 0 0 .25-.25V6h-2.75A1.75 1.75 0 0 1 9 4.25V1.5Zm6.75.062V4.25c0 .138.112.25.25.25h2.688l-.011-.013-2.914-2.914-.013-.011Z"/></symbol>
+  <symbol id="i-check-circle" viewBox="0 0 16 16"><path d="M8 16A8 8 0 1 1 8 0a8 8 0 0 1 0 16Zm3.78-9.72a.751.751 0 0 0-.018-1.042.751.751 0 0 0-1.042-.018L6.75 9.19 5.28 7.72a.751.751 0 0 0-1.042.018.751.751 0 0 0-.018 1.042l2 2a.75.75 0 0 0 1.06 0Z"/></symbol>
+  <symbol id="i-x-circle" viewBox="0 0 16 16"><path d="M2.344 2.343h-.001a8 8 0 0 1 11.314 11.314A8.002 8.002 0 0 1 .234 10.089a8 8 0 0 1 2.11-7.746Zm1.06 10.253a6.5 6.5 0 1 0 9.108-9.275 6.5 6.5 0 0 0-9.108 9.275ZM6.03 4.97 8 6.94l1.97-1.97a.749.749 0 0 1 1.275.326.749.749 0 0 1-.215.734L9.06 8l1.97 1.97a.749.749 0 0 1-.326 1.275.749.749 0 0 1-.734-.215L8 9.06l-1.97 1.97a.749.749 0 0 1-1.275-.326.749.749 0 0 1 .215-.734L6.94 8 4.97 6.03a.751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018Z"/></symbol>
+  <symbol id="i-dot" viewBox="0 0 16 16"><path d="M8 4a4 4 0 1 1 0 8 4 4 0 0 1 0-8Z"/></symbol>
+  <symbol id="i-sync" viewBox="0 0 16 16"><path d="M8 2.5a5.487 5.487 0 0 0-4.131 1.869l1.204 1.204A.25.25 0 0 1 4.896 6H1.25A.25.25 0 0 1 1 5.75V2.104a.25.25 0 0 1 .427-.177l1.38 1.38A7.002 7.002 0 0 1 14.95 7.16a.75.75 0 0 1-1.49.178A5.5 5.5 0 0 0 8 2.5ZM1.705 8.005a.75.75 0 0 1 .834.656 5.5 5.5 0 0 0 9.592 2.97l-1.204-1.204a.25.25 0 0 1 .177-.427h3.646a.25.25 0 0 1 .25.25v3.646a.25.25 0 0 1-.427.177l-1.38-1.38A7.002 7.002 0 0 1 1.05 8.84a.75.75 0 0 1 .656-.834Z"/></symbol>
+  <symbol id="i-download" viewBox="0 0 16 16"><path d="M2.75 14A1.75 1.75 0 0 1 1 12.25v-2.5a.75.75 0 0 1 1.5 0v2.5c0 .138.112.25.25.25h10.5a.25.25 0 0 0 .25-.25v-2.5a.75.75 0 0 1 1.5 0v2.5A1.75 1.75 0 0 1 13.25 14Z"/><path d="M7.25 7.689V2a.75.75 0 0 1 1.5 0v5.689l1.97-1.969a.749.749 0 1 1 1.06 1.06l-3.25 3.25a.749.749 0 0 1-1.06 0L4.22 6.78a.749.749 0 1 1 1.06-1.06l1.97 1.969Z"/></symbol>
+  <symbol id="i-play" viewBox="0 0 16 16"><path d="M8 0a8 8 0 1 1 0 16A8 8 0 0 1 8 0ZM1.5 8a6.5 6.5 0 1 0 13 0 6.5 6.5 0 0 0-13 0Zm4.879-2.773 4.264 2.559a.25.25 0 0 1 0 .428l-4.264 2.559A.25.25 0 0 1 6 10.559V5.442a.25.25 0 0 1 .379-.215Z"/></symbol>
+  <symbol id="i-gear" viewBox="0 0 16 16"><path d="M8 0a8.2 8.2 0 0 1 .701.031C9.444.095 9.99.645 10.16 1.29l.288 1.107c.018.066.079.158.212.224.231.114.454.243.668.386.123.082.233.09.299.071l1.103-.303c.644-.176 1.392.021 1.82.63.27.385.506.792.704 1.218.315.675.111 1.422-.364 1.891l-.814.806c-.049.048-.098.147-.088.294.016.257.016.515 0 .772-.01.147.038.246.088.294l.814.806c.475.469.679 1.216.364 1.891a7.977 7.977 0 0 1-.704 1.217c-.428.61-1.176.807-1.82.63l-1.102-.302c-.067-.019-.177-.011-.3.071a5.909 5.909 0 0 1-.668.386c-.133.066-.194.158-.211.224l-.29 1.106c-.168.646-.715 1.196-1.458 1.26a8.006 8.006 0 0 1-1.402 0c-.743-.064-1.289-.614-1.458-1.26l-.289-1.106c-.018-.066-.079-.158-.212-.224a5.738 5.738 0 0 1-.668-.386c-.123-.082-.233-.09-.299-.071l-1.103.303c-.644.176-1.392-.021-1.82-.63a8.12 8.12 0 0 1-.704-1.218c-.315-.675-.111-1.422.363-1.891l.815-.806c.05-.048.098-.147.088-.294a6.214 6.214 0 0 1 0-.772c.01-.147-.038-.246-.088-.294l-.815-.806C.635 6.045.431 5.298.746 4.623a7.92 7.92 0 0 1 .704-1.217c.428-.61 1.176-.807 1.82-.63l1.102.302c.067.019.177.011.3-.071.214-.143.437-.272.668-.386.133-.066.194-.158.211-.224l.29-1.106C6.009.645 6.556.095 7.299.03 7.53.01 7.764 0 8 0Zm-.571 1.525c-.036.003-.108.036-.137.146l-.289 1.105c-.147.561-.549.967-.998 1.189-.173.086-.34.183-.5.29-.417.278-.97.423-1.529.27l-1.103-.303c-.109-.03-.175.016-.195.045-.22.312-.412.644-.573.99-.014.031-.021.11.059.19l.815.806c.411.406.562.957.53 1.456a4.709 4.709 0 0 0 0 .582c.032.499-.119 1.05-.53 1.456l-.815.806c-.081.08-.073.159-.059.19.162.346.353.677.573.989.02.03.085.076.195.046l1.102-.303c.56-.153 1.113-.008 1.53.27.161.107.328.204.501.29.447.222.85.629.997 1.189l.289 1.105c.029.109.101.143.137.146a6.6 6.6 0 0 0 1.142 0c.036-.003.108-.036.137-.146l.289-1.105c.147-.561.549-.967.998-1.189.173-.086.34-.183.5-.29.417-.278.97-.423 1.529-.27l1.103.303c.109.029.175-.016.195-.045.22-.313.411-.644.573-.99.014-.031.021-.11-.059-.19l-.815-.806c-.411-.406-.562-.957-.53-1.456a4.709 4.709 0 0 0 0-.582c-.032-.499.119-1.05.53-1.456l.815-.806c.081-.08.073-.159.059-.19a6.464 6.464 0 0 0-.573-.989c-.02-.03-.085-.076-.195-.046l-1.102.303c-.56.153-1.113.008-1.53-.27a4.44 4.44 0 0 0-.501-.29c-.447-.222-.85-.629-.997-1.189l-.289-1.105c-.029-.11-.101-.143-.137-.146a6.6 6.6 0 0 0-1.142 0ZM11 8a3 3 0 1 1-6 0 3 3 0 0 1 6 0ZM9.5 8a1.5 1.5 0 1 0-3.001.001A1.5 1.5 0 0 0 9.5 8Z"/></symbol>
+  <symbol id="i-moon" viewBox="0 0 16 16"><path d="M9.598 1.591a.749.749 0 0 1 .785-.175 7.001 7.001 0 1 1-8.967 8.967.75.75 0 0 1 .961-.96 5.5 5.5 0 0 0 7.046-7.046.75.75 0 0 1 .175-.786Zm1.616 1.945a7 7 0 0 1-7.678 7.678 5.499 5.499 0 1 0 7.678-7.678Z"/></symbol>
+  <symbol id="i-chev" viewBox="0 0 16 16"><path d="M6.22 3.22a.75.75 0 0 1 1.06 0l4.25 4.25a.75.75 0 0 1 0 1.06l-4.25 4.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042L9.94 8 6.22 4.28a.75.75 0 0 1 0-1.06Z"/></symbol>
+  <symbol id="i-tools" viewBox="0 0 16 16"><path d="M5.433 2.304A4.494 4.494 0 0 0 3.5 6c0 1.598.832 3.002 2.09 3.802.518.328.929.923.902 1.64v.008l-.164 3.337a.75.75 0 1 1-1.498-.073l.163-3.33c.002-.085-.05-.216-.207-.316A5.996 5.996 0 0 1 2 6a5.994 5.994 0 0 1 2.567-4.92 1.482 1.482 0 0 1 1.673-.04c.462.296.76.827.76 1.423v2.82c0 .082.041.16.11.206l.75.51a.25.25 0 0 0 .28 0l.75-.51A.249.249 0 0 0 9 5.282V2.463c0-.596.298-1.127.76-1.423a1.482 1.482 0 0 1 1.673.04A5.994 5.994 0 0 1 14 6a5.996 5.996 0 0 1-2.786 5.068c-.157.1-.209.23-.207.315l.163 3.33a.752.752 0 0 1-1.094.714.75.75 0 0 1-.404-.64l-.164-3.345c-.027-.717.384-1.312.902-1.64A4.495 4.495 0 0 0 12.5 6a4.494 4.494 0 0 0-1.933-3.696c-.024.017-.067.067-.067.16v2.818a1.75 1.75 0 0 1-.767 1.448l-.75.51a1.75 1.75 0 0 1-1.966 0l-.75-.51A1.75 1.75 0 0 1 5.5 5.282V2.463c0-.092-.043-.142-.067-.159Z"/></symbol>
+</svg>
+
+<header class="appheader">
+  <div class="toprow">
+    <span class="mark"><svg class="oct"><use href="#i-tools"/></svg></span>
+    <div class="crumb"><a href="#" onclick="return false">exeforge</a><span class="sep">/</span><strong>build</strong></div>
+    <span class="Label hide-sm" id="verLabel">local</span>
+    <div class="spacer"></div>
+    <span class="Label hide-sm" id="ccLabel" title="Compiler status" style="cursor:pointer">checking…</span>
+    <button class="btn-octicon" id="themeBtn" title="Toggle light/dark theme" aria-label="Toggle theme"><svg class="oct"><use href="#i-moon"/></svg></button>
+    <button class="btn btn-sm" id="quitBtn" title="Stop the ExeForge server">Quit</button>
+  </div>
+  <nav class="UnderlineNav" aria-label="Source">
+    <button data-tab="code" aria-current="page"><span class="inner"><svg class="oct"><use href="#i-code"/></svg>Code</span></button>
+    <button data-tab="files"><span class="inner"><svg class="oct"><use href="#i-upload"/></svg>Upload files <span class="Label" id="fileCount" hidden>0</span></span></button>
+    <button data-tab="paths"><span class="inner"><svg class="oct"><use href="#i-folder"/></svg>Local paths</span></button>
+  </nav>
 </header>
 
-<main>
-  <div class="stack">
-    <section class="card">
-      <div class="hd">
-        <div class="tabs">
-          <button class="tab active" data-tab="code">Write code</button>
-          <button class="tab" data-tab="files">Upload files</button>
-          <button class="tab" data-tab="paths">Local paths</button>
+<div class="container">
+  <div class="layout">
+    <main class="stack">
+      <div class="Box">
+        <!-- code tab -->
+        <div data-pane="code">
+          <div class="Box-header">
+            <svg class="oct" style="color:var(--muted)"><use href="#i-file"/></svg>
+            <input type="text" class="form-control mono filename-input" id="filename" value="hello.c" aria-label="File name" style="height:28px;padding:3px 8px;font-size:12px">
+            <span class="note hide-sm" style="margin:0">The extension picks the language</span>
+            <div class="spacer"></div>
+            <select class="form-control" id="tpl" style="width:auto;height:28px;padding-top:3px;padding-bottom:3px;font-size:12px" aria-label="Template"></select>
+          </div>
+          <div class="editor mono">
+            <div class="gutter" id="gutter"></div>
+            <textarea class="code mono" id="code" spellcheck="false" aria-label="Source code" wrap="off"></textarea>
+          </div>
         </div>
-        <div class="spacer"></div>
-        <select id="tpl" style="width:auto"></select>
-      </div>
-      <div class="bd">
-        <div data-pane="code" class="editor-wrap">
-          <div class="row"><input type="text" id="filename" value="hello.c" style="max-width:220px" aria-label="File name"><span class="hint" style="margin:0">The extension picks the language (.c .cpp .go .rs)</span></div>
-          <textarea class="code" id="code" spellcheck="false" aria-label="Source code"></textarea>
-        </div>
+        <!-- files tab -->
         <div data-pane="files" hidden>
-          <div class="drop" id="drop">Drop source files here (.c .cpp .h .go .rs .rc) or click to choose</div>
+          <div class="Box-header"><span class="Box-title">Upload source files</span></div>
+          <div class="drop" id="drop">
+            <svg class="oct" style="width:32px;height:32px;margin-bottom:8px"><use href="#i-upload"/></svg><br>
+            Drag files here or <strong>choose your files</strong><br>
+            <span class="note">.c .cpp .h .hpp .go .rs .rc — compiled together, headers can be #included</span>
+          </div>
           <input type="file" id="fileInput" multiple hidden>
-          <ul class="filelist" id="fileList"></ul>
-          <div class="hint">Uploaded files are compiled together; headers are available to #include. The editor's code is ignored on this tab.</div>
+          <ul class="filelist mono" id="fileList"></ul>
         </div>
+        <!-- paths tab -->
         <div data-pane="paths" hidden>
-          <textarea id="paths" rows="6" placeholder="/home/me/project/main.c&#10;/home/me/project/util.c&#10;(or a folder containing a Go package)" style="font-family:ui-monospace,monospace"></textarea>
-          <div class="hint">Files on this computer, one per line. Useful for larger projects.</div>
+          <div class="Box-header"><span class="Box-title">Files on this computer</span></div>
+          <div class="Box-body">
+            <textarea id="paths" class="form-control mono" rows="7" placeholder="/home/me/project/main.c&#10;/home/me/project/util.c&#10;/home/me/my-go-app   (a folder with a Go package)"></textarea>
+            <div class="note">One path per line. Useful for bigger projects that already live on disk.</div>
+          </div>
         </div>
       </div>
-    </section>
 
-    <section class="card">
-      <div class="hd">Build output <div class="spacer"></div><button id="clearLog" style="padding:3px 9px;font-size:12px">Clear</button></div>
-      <div class="result" id="result">
-        <div class="title" id="resName"></div>
-        <div class="kv" id="resKv"></div>
-        <div class="row">
-          <button class="primary" id="dlBtn">⬇ Download .exe</button>
-          <button id="runBtn">▶ Run</button>
-          <button id="folderBtn">Open folder</button>
+      <div class="flash flash-success" id="result" hidden>
+        <svg class="oct"><use href="#i-check-circle"/></svg>
+        <div style="min-width:0;flex:1">
+          <div class="t mono" id="resName"></div>
+          <div class="kv" id="resKv"></div>
+          <div style="display:flex;gap:8px;flex-wrap:wrap">
+            <button class="btn btn-primary" id="dlBtn"><svg class="oct"><use href="#i-download"/></svg>Download .exe</button>
+            <button class="btn" id="runBtn"><svg class="oct"><use href="#i-play"/></svg>Run</button>
+            <button class="btn" id="folderBtn"><svg class="oct"><use href="#i-folder"/></svg>Open folder</button>
+          </div>
         </div>
       </div>
-      <pre class="log" id="log">Ready. Pick a template or write some code, then press Build.</pre>
-    </section>
-  </div>
 
-  <aside class="stack">
-    <section class="card">
-      <div class="hd">Build settings</div>
-      <div class="bd">
-        <label class="f">Architecture</label>
-        <div class="seg" id="arch"><button data-v="x64" class="on">x64</button><button data-v="x86">x86 (32-bit)</button><button data-v="arm64">ARM64</button></div>
-        <label class="f">App type</label>
-        <div class="seg" id="kind"><button data-v="console" class="on">Console</button><button data-v="gui">Windowed</button></div>
-        <label class="f" for="outName">Output name</label>
-        <input type="text" id="outName" placeholder="hello.exe">
-        <label class="f" for="libs">Link libraries</label>
-        <input type="text" id="libs" placeholder="user32 gdi32 ws2_32">
-        <details>
-          <summary>More options</summary>
-          <label class="f">Icon (.ico)</label>
-          <input type="file" id="icon" accept=".ico">
-          <label class="f" for="productName">Product name</label>
-          <input type="text" id="productName" placeholder="My App">
-          <label class="f" for="version">Version</label>
-          <input type="text" id="version" placeholder="1.0.0">
-          <label class="f" for="defines">Defines</label>
-          <input type="text" id="defines" placeholder="DEBUG=1 FEATURE_X">
-          <label class="f" for="flags">Extra compiler flags</label>
-          <input type="text" id="flags" placeholder="-std=c11 -Wall">
-          <label class="f" for="toolchain">Compiler</label>
-          <select id="toolchain"><option value="auto">Automatic</option><option value="mingw">MinGW-w64 (gcc)</option><option value="zig">Zig (clang)</option></select>
-          <label class="f" for="outDir">Save to folder</label>
-          <input type="text" id="outDir">
-          <label class="check"><input type="checkbox" id="debug"> Debug build (symbols, no optimisation)</label>
+      <div class="checkrun">
+        <div class="checkrun-head">
+          <span class="status-icon idle" id="runIcon"><svg class="oct"><use href="#i-dot"/></svg></span>
+          <div style="flex:1;min-width:0"><div style="font-weight:600" id="runTitleTxt">build</div><div class="sub" id="runSub">Waiting for a build</div></div>
+          <button class="btn-octicon" id="clearLog" title="Clear log" style="color:var(--log-muted)"><svg class="oct"><use href="#i-x-circle"/></svg></button>
+        </div>
+        <div class="log mono" id="log"></div>
+      </div>
+    </main>
+
+    <aside class="side">
+      <section>
+        <h2>Build settings</h2>
+        <div class="form-group">
+          <label>Architecture</label>
+          <div class="SegmentedControl" id="arch"><button data-v="x64" class="on">x64</button><button data-v="x86">x86</button><button data-v="arm64">ARM64</button></div>
+        </div>
+        <div class="form-group">
+          <label>App type</label>
+          <div class="SegmentedControl" id="kind"><button data-v="console" class="on">Console</button><button data-v="gui">Windowed</button></div>
+        </div>
+        <div class="form-group">
+          <label for="outName">Output name</label>
+          <input type="text" class="form-control mono" id="outName" placeholder="hello.exe">
+        </div>
+        <div class="form-group">
+          <label for="libs">Link libraries</label>
+          <input type="text" class="form-control mono" id="libs" placeholder="user32 gdi32 ws2_32">
+        </div>
+        <details class="more">
+          <summary><svg class="oct"><use href="#i-chev"/></svg>Advanced options</summary>
+          <div class="form-group"><label for="icon">Icon (.ico)</label><input type="file" id="icon" accept=".ico" style="font-size:12px;max-width:100%"></div>
+          <div class="form-group"><label for="productName">Product name</label><input type="text" class="form-control" id="productName" placeholder="My App"></div>
+          <div class="form-group"><label for="version">Version</label><input type="text" class="form-control mono" id="version" placeholder="1.0.0"></div>
+          <div class="form-group"><label for="defines">Defines</label><input type="text" class="form-control mono" id="defines" placeholder="DEBUG=1 FEATURE_X"></div>
+          <div class="form-group"><label for="flags">Extra compiler flags</label><input type="text" class="form-control mono" id="flags" placeholder="-std=c11 -Wall"></div>
+          <div class="form-group"><label for="toolchain">Compiler</label>
+            <select class="form-control" id="toolchain"><option value="auto">Automatic</option><option value="mingw">MinGW-w64 (gcc)</option><option value="zig">Zig (clang)</option></select></div>
+          <div class="form-group"><label for="outDir">Save to folder</label><input type="text" class="form-control mono" id="outDir" style="font-size:12px"></div>
+          <div class="form-group"><label class="check"><input type="checkbox" id="debug"> Debug build</label><div class="note">Keeps symbols and disables optimisation.</div></div>
         </details>
-        <button class="primary" id="buildBtn" style="width:100%;margin-top:16px;padding:10px">Build .exe</button>
-        <div class="hint" style="text-align:center">Ctrl+Enter to build</div>
-      </div>
-    </section>
-    <section class="card">
-      <div class="hd">Toolchains <div class="spacer"></div><button id="setupBtn" style="padding:3px 9px;font-size:12px">Install compiler</button></div>
-      <div class="bd tools" id="tools">…</div>
-    </section>
-  </aside>
-</main>
+        <button class="btn btn-primary btn-block" id="buildBtn" style="height:40px;font-size:14px">Build .exe</button>
+        <div class="note" style="text-align:center;margin-top:8px"><kbd class="mono">Ctrl</kbd> + <kbd class="mono">Enter</kbd> to build</div>
+      </section>
+      <section>
+        <div style="display:flex;align-items:center;margin-bottom:12px"><h2 style="margin:0;flex:1">Toolchains</h2><button class="btn btn-sm" id="setupBtn">Install compiler</button></div>
+        <ul class="tools" id="tools"><li class="d">Loading…</li></ul>
+      </section>
+    </aside>
+  </div>
+</div>
+<footer><span>ExeForge runs only on this computer (127.0.0.1)</span><span id="platform"></span></footer>
 
-<div class="modal" id="runModal">
-  <div class="card">
-    <div class="hd" id="runTitle">Program output <div class="spacer"></div><button id="runClose">Close</button></div>
-    <pre class="log" id="runOut" style="border-radius:0 0 12px 12px;max-height:60vh"></pre>
+<div class="overlay" id="runModal" role="dialog" aria-modal="true">
+  <div class="dialog">
+    <div class="checkrun" style="border:none;border-radius:0">
+      <div class="checkrun-head">
+        <span class="status-icon" id="runModalIcon"></span>
+        <div style="flex:1;font-weight:600" id="runModalTitle">Run</div>
+        <button class="btn btn-sm" id="runClose">Close</button>
+      </div>
+      <div class="log mono" id="runOut" style="max-height:60vh"></div>
+    </div>
   </div>
 </div>
 
@@ -183,6 +322,7 @@ details summary{cursor:pointer;color:var(--muted);font-size:12.5px;margin-top:12
 const T = new URLSearchParams(location.search).get('t') || '';
 const $ = id => document.getElementById(id);
 const api = (path, opts = {}) => fetch(path + (path.includes('?') ? '&' : '?') + 't=' + T, {...opts, headers: {'X-Token': T, ...(opts.headers || {})}});
+const icon = (id, cls = '') => `<svg class="oct ${cls}"><use href="#${id}"/></svg>`;
 let state = {tab: 'code', files: [], templates: [], lastId: null, arch: 'x64', kind: 'console'};
 
 // theme
@@ -195,9 +335,9 @@ $('themeBtn').onclick = () => {
 };
 
 // tabs
-document.querySelectorAll('.tab').forEach(b => b.onclick = () => {
+document.querySelectorAll('.UnderlineNav button').forEach(b => b.onclick = () => {
   state.tab = b.dataset.tab;
-  document.querySelectorAll('.tab').forEach(x => x.classList.toggle('active', x === b));
+  document.querySelectorAll('.UnderlineNav button').forEach(x => x === b ? x.setAttribute('aria-current', 'page') : x.removeAttribute('aria-current'));
   document.querySelectorAll('[data-pane]').forEach(p => p.hidden = p.dataset.pane !== state.tab);
 });
 
@@ -209,19 +349,23 @@ function seg(id, key) {
   });
 }
 seg('arch', 'arch'); seg('kind', 'kind');
-function setKind(v) { $('kind').querySelector(`[data-v="${v}"]`).click(); }
+const setKind = v => $('kind').querySelector(`[data-v="${v}"]`).click();
 
-// editor: tab key inserts spaces
-$('code').addEventListener('keydown', e => {
-  if (e.key === 'Tab' && !e.shiftKey) {
-    e.preventDefault();
-    const t = e.target, s = t.selectionStart;
-    t.setRangeText('    ', s, t.selectionEnd, 'end');
-  }
+// editor with line numbers
+const code = $('code'), gutter = $('gutter');
+function updateGutter() {
+  const n = code.value.split('\n').length;
+  if (gutter.childElementCount !== n) gutter.innerHTML = Array.from({length: n}, (_, i) => `<div>${i + 1}</div>`).join('');
+  code.style.height = 'auto';
+  code.style.height = Math.max(420, code.scrollHeight) + 'px';
+}
+code.addEventListener('input', updateGutter);
+code.addEventListener('keydown', e => {
+  if (e.key === 'Tab' && !e.shiftKey) { e.preventDefault(); code.setRangeText('    ', code.selectionStart, code.selectionEnd, 'end'); updateGutter(); }
 });
-document.addEventListener('keydown', e => { if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') build(); });
+document.addEventListener('keydown', e => { if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') build(); if (e.key === 'Escape') $('runModal').classList.remove('show'); });
 
-// files
+// uploads
 const drop = $('drop');
 drop.onclick = () => $('fileInput').click();
 $('fileInput').onchange = e => addFiles(e.target.files);
@@ -233,56 +377,89 @@ function renderFiles() {
   const ul = $('fileList'); ul.innerHTML = '';
   state.files.forEach((f, i) => {
     const li = document.createElement('li');
-    li.textContent = `${f.name}  (${(f.size / 1024).toFixed(1)} KB)`;
-    const rm = document.createElement('button'); rm.textContent = '✕'; rm.title = 'Remove';
+    li.innerHTML = icon('i-file') + '<span class="nm"></span><span class="note" style="margin:0"></span>';
+    li.querySelector('.nm').textContent = f.name;
+    li.querySelector('.note').textContent = (f.size / 1024).toFixed(1) + ' KB';
+    const rm = document.createElement('button'); rm.className = 'btn btn-sm btn-danger'; rm.textContent = 'Remove';
     rm.onclick = () => { state.files.splice(i, 1); renderFiles(); };
     li.appendChild(rm); ul.appendChild(li);
   });
+  $('fileCount').hidden = !state.files.length; $('fileCount').textContent = state.files.length;
 }
 
 // templates
 $('tpl').onchange = () => {
   const t = state.templates.find(x => x.id === $('tpl').value); if (!t) return;
-  $('code').value = t.code; $('filename').value = t.filename; $('libs').value = t.libs || '';
-  $('outName').value = ''; $('outName').placeholder = t.filename.replace(/\.[^.]+$/, '') + '.exe'; setKind(t.gui ? 'gui' : 'console');
+  code.value = t.code; $('filename').value = t.filename; $('libs').value = t.libs || '';
+  $('outName').value = ''; $('outName').placeholder = t.filename.replace(/\.[^.]+$/, '') + '.exe';
+  setKind(t.gui ? 'gui' : 'console'); updateGutter();
   document.querySelector('[data-tab="code"]').click();
 };
 
 // status
 async function loadStatus() {
   const s = await (await api('/api/status')).json();
-  $('ccDot').className = 'dot ' + (s.ccReady ? 'ok' : 'err');
-  $('ccText').textContent = s.ccReady ? s.ccDetail.split(' (')[0] : 'No C compiler — click to install';
+  const L = $('ccLabel');
+  L.innerHTML = icon('i-dot') + ' ';
+  L.append(s.ccReady ? s.ccDetail.split(' (')[0] : 'No C compiler — install');
+  L.style.color = s.ccReady ? 'var(--success)' : 'var(--danger)';
+  L.style.borderColor = s.ccReady ? 'var(--success)' : 'var(--danger)';
   $('tools').innerHTML = '';
   s.tools.forEach(t => {
-    const d = document.createElement('div');
-    d.innerHTML = `<span class="dot ${t.found ? 'ok' : ''}" style="margin-top:6px;flex:none"></span><span class="n"></span><span class="d"></span>`;
-    d.querySelector('.n').textContent = t.name;
-    d.querySelector('.d').textContent = t.detail + ' · ' + t.for;
-    $('tools').appendChild(d);
+    const li = document.createElement('li');
+    li.innerHTML = `<span class="dot ${t.found ? 'ok' : ''}"></span><div style="min-width:0"><b></b><div class="d"></div></div>`;
+    li.querySelector('b').textContent = t.name;
+    li.querySelector('.d').textContent = t.detail + ' · ' + t.for;
+    $('tools').appendChild(li);
   });
   if (!$('outDir').value) $('outDir').value = s.outDir;
+  $('verLabel').textContent = 'v' + (s.version || 'dev');
+  $('platform').textContent = 'Host: ' + s.platform;
   if (!state.templates.length) {
     state.templates = s.templates;
-    const ph = new Option('Templates…', ''); ph.disabled = true; $('tpl').add(ph);
     s.templates.forEach(t => $('tpl').add(new Option(t.name, t.id)));
     $('tpl').value = s.templates[0].id; $('tpl').onchange();
   }
-  document.title = 'ExeForge ' + (s.version || '');
   return s;
 }
-$('ccPill').onclick = () => { if ($('ccDot').classList.contains('err')) setup(); };
+$('ccLabel').onclick = () => { if ($('ccLabel').style.color.includes('danger')) setup(); };
 
-const log = (txt, replace) => { const l = $('log'); l.textContent = replace ? txt : l.textContent + txt; l.scrollTop = l.scrollHeight; };
-$('clearLog').onclick = () => { log('', true); $('result').classList.remove('show'); };
+// Actions-style log
+function renderLog(el, text, append) {
+  if (!append) el.innerHTML = '';
+  let n = el.childElementCount;
+  for (const line of text.replace(/\n$/, '').split('\n')) {
+    const d = document.createElement('div'); d.className = 'ln';
+    if (line.startsWith('$ ')) d.classList.add('cmd');
+    else if (line.startsWith('✔') || line === 'DONE') d.classList.add('ok');
+    else if (line.startsWith('✘') || /\berror\b|ERROR/.test(line)) d.classList.add('err');
+    else if (/warning/i.test(line)) d.classList.add('warn');
+    else if (/^(Language|Compiler):/.test(line)) d.classList.add('grp');
+    const no = document.createElement('span'); no.className = 'no'; no.textContent = ++n;
+    const tx = document.createElement('span'); tx.className = 'tx'; tx.textContent = line;
+    d.append(no, tx); el.appendChild(d);
+  }
+  el.scrollTop = el.scrollHeight;
+}
+function setRun(status, title, sub) {
+  const ic = $('runIcon');
+  ic.className = 'status-icon ' + ({ok: 'ok', fail: 'fail', idle: 'idle', busy: ''}[status]);
+  ic.innerHTML = status === 'busy' ? icon('i-sync', 'spin') : status === 'ok' ? icon('i-check-circle') : status === 'fail' ? icon('i-x-circle') : icon('i-dot');
+  $('runTitleTxt').textContent = title; $('runSub').textContent = sub;
+}
+renderLog($('log'), 'Ready. Pick a template or write some code, then press Build.');
+$('clearLog').onclick = () => { renderLog($('log'), ''); $('result').hidden = true; setRun('idle', 'build', 'Waiting for a build'); };
 
 async function setup() {
-  $('setupBtn').disabled = true; log('Installing the Zig C/C++ cross-compiler (~50–80 MB)…\n', true);
+  $('setupBtn').disabled = true; setRun('busy', 'setup', 'Installing the Zig C/C++ cross-compiler (~50–80 MB)');
+  renderLog($('log'), 'Installing Zig…');
+  let ok = false;
   try {
     const r = await api('/api/setup', {method: 'POST'});
     const rd = r.body.getReader(), dec = new TextDecoder();
-    for (;;) { const {done, value} = await rd.read(); if (done) break; log(dec.decode(value)); }
-  } catch (e) { log('Error: ' + e + '\n'); }
+    for (;;) { const {done, value} = await rd.read(); if (done) break; const t = dec.decode(value); ok = ok || t.includes('DONE'); renderLog($('log'), t, true); }
+  } catch (e) { renderLog($('log'), 'ERROR: ' + e, true); }
+  setRun(ok ? 'ok' : 'fail', 'setup', ok ? 'Compiler installed' : 'Install failed');
   $('setupBtn').disabled = false; loadStatus();
 }
 $('setupBtn').onclick = setup;
@@ -290,52 +467,62 @@ $('setupBtn').onclick = setup;
 async function build() {
   const btn = $('buildBtn'); if (btn.disabled) return;
   btn.disabled = true; btn.textContent = 'Building…';
-  $('result').classList.remove('show'); log('Building…\n', true);
+  $('result').hidden = true;
+  const name = state.tab === 'code' ? $('filename').value : state.tab === 'files' ? state.files.length + ' file(s)' : 'local paths';
+  setRun('busy', 'build ' + name, `Windows ${state.arch} · ${state.kind === 'gui' ? 'windowed' : 'console'}`);
+  renderLog($('log'), 'Starting build…');
   const fd = new FormData();
   const opts = {
     arch: state.arch, gui: state.kind === 'gui', debug: $('debug').checked, toolchain: $('toolchain').value,
     libs: $('libs').value, defines: $('defines').value, flags: $('flags').value, outName: $('outName').value,
     outDir: $('outDir').value, productName: $('productName').value, version: $('version').value,
   };
-  if (state.tab === 'code') { opts.code = $('code').value; opts.filename = $('filename').value; }
+  if (state.tab === 'code') { opts.code = code.value; opts.filename = $('filename').value; }
   if (state.tab === 'files') state.files.forEach(f => fd.append('files', f, f.name));
   if (state.tab === 'paths') opts.paths = $('paths').value;
   fd.append('options', JSON.stringify(opts));
   if ($('icon').files[0]) fd.append('icon', $('icon').files[0]);
+  const t0 = performance.now();
   try {
     const res = await (await api('/api/build', {method: 'POST', body: fd})).json();
-    log(res.log, true);
-    if (res.ok) showResult(res);
-  } catch (e) { log('Request failed: ' + e + '\n'); }
+    renderLog($('log'), res.log);
+    const secs = ((performance.now() - t0) / 1000).toFixed(1) + 's';
+    if (res.ok) { setRun('ok', 'build ' + name, 'Succeeded in ' + secs); showResult(res); }
+    else setRun('fail', 'build ' + name, 'Failed after ' + secs);
+  } catch (e) { renderLog($('log'), 'ERROR: request failed: ' + e, true); setRun('fail', 'build', 'Could not reach ExeForge'); }
   btn.disabled = false; btn.textContent = 'Build .exe';
 }
 $('buildBtn').onclick = build;
 
 function showResult(r) {
   state.lastId = r.id;
-  $('resName').textContent = '✔ ' + r.name;
+  $('resName').textContent = r.name;
   const kv = $('resKv'); kv.innerHTML = '';
-  const rows = [['Saved to', r.output], ['Size', (r.size / 1024).toFixed(1) + ' KB'],
-    ['Type', `${r.info.machine} · ${r.info.subsystem}`], ['Compiler', r.compiler],
-    ['Needs DLLs', (r.info.dlls || []).join(', ') || 'none'], ['Time', (r.ms / 1000).toFixed(2) + ' s']];
-  rows.forEach(([k, v]) => { const a = document.createElement('span'); a.textContent = k; const b = document.createElement('b'); b.textContent = v; kv.append(a, b); });
-  $('result').classList.add('show');
+  [['Saved to', r.output], ['Size', (r.size / 1024).toFixed(1) + ' KB'], ['Type', `${r.info.machine} · ${r.info.subsystem}`],
+   ['Compiler', r.compiler], ['Needs DLLs', (r.info.dlls || []).join(', ') || 'none'], ['Time', (r.ms / 1000).toFixed(2) + ' s']]
+    .forEach(([k, v]) => { const a = document.createElement('span'); a.textContent = k; const b = document.createElement('b'); b.textContent = v; kv.append(a, b); });
+  $('result').hidden = false;
 }
 $('dlBtn').onclick = () => { if (state.lastId) location.href = `/api/download?id=${state.lastId}&t=${T}`; };
 $('folderBtn').onclick = () => api('/api/open-folder?id=' + state.lastId, {method: 'POST'});
 $('runBtn').onclick = async () => {
-  $('runOut').textContent = 'Running…'; $('runModal').classList.add('show');
+  $('runModalTitle').textContent = 'Run ' + $('resName').textContent;
+  $('runModalIcon').className = 'status-icon'; $('runModalIcon').innerHTML = icon('i-sync', 'spin');
+  renderLog($('runOut'), 'Running…'); $('runModal').classList.add('show');
   const r = await (await api('/api/run?id=' + state.lastId, {method: 'POST'})).json();
-  $('runOut').textContent = (r.output || '(no output)') + (r.error ? '\n[' + r.error + ']' : '\n[exited OK]');
+  renderLog($('runOut'), (r.output || '(no output)') + '\n' + (r.error ? '✘ ' + r.error : '✔ exited OK'));
+  $('runModalIcon').className = 'status-icon ' + (r.ok ? 'ok' : 'fail');
+  $('runModalIcon').innerHTML = icon(r.ok ? 'i-check-circle' : 'i-x-circle');
 };
 $('runClose').onclick = () => $('runModal').classList.remove('show');
+$('runModal').onclick = e => { if (e.target === $('runModal')) $('runModal').classList.remove('show'); };
 $('quitBtn').onclick = async () => {
   if (!confirm('Stop ExeForge?')) return;
   await api('/api/quit', {method: 'POST'});
-  document.body.innerHTML = '<p style="padding:40px;text-align:center">ExeForge has stopped. You can close this tab.</p>';
+  document.body.innerHTML = '<div class="blankslate" style="padding:80px 16px"><h2>ExeForge has stopped</h2><p>You can close this tab.</p></div>';
 };
 
-loadStatus().catch(e => log('Could not reach ExeForge: ' + e, true));
+loadStatus().catch(e => renderLog($('log'), 'ERROR: could not reach ExeForge: ' + e));
 </script>
 </body>
 </html>

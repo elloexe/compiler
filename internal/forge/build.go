@@ -194,6 +194,8 @@ func buildC(o *Options, lang, work string) (string, error) {
 	if tc.Kind == "mingw" {
 		// Self-contained exe: no libgcc/libstdc++/winpthread DLLs needed.
 		args = append(args, "-static", "-static-libgcc")
+		// Reproducible output: same source + same compiler = byte-identical exe.
+		args = append(args, "-Wl,--no-insert-timestamp")
 		if lang == "c++" {
 			args = append(args, "-static-libstdc++")
 		}
